@@ -1,0 +1,43 @@
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+map -intstyle ise -p xc3s1200e-fg320-4 -cm area -ir off -pr off -c 100 -o OpenMIPS_map.ncd OpenMIPS.ngd OpenMIPS.pcf 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+map -intstyle ise -p xc3s1200e-fg320-4 -cm area -ir off -pr off -c 100 -o OpenMIPS_map.ncd OpenMIPS.ngd OpenMIPS.pcf 
+par -w -intstyle ise -ol high -t 1 OpenMIPS_map.ncd OpenMIPS.ncd OpenMIPS.pcf 
+trce -intstyle ise -v 3 -s 4 -n 3 -fastpaths -xml OpenMIPS.twx OpenMIPS.ncd -o OpenMIPS.twr OpenMIPS.pcf 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+map -intstyle ise -p xc3s1200e-fg320-4 -cm area -ir off -pr off -c 100 -o OpenMIPS_map.ncd OpenMIPS.ngd OpenMIPS.pcf 
+par -w -intstyle ise -ol high -t 1 OpenMIPS_map.ncd OpenMIPS.ncd OpenMIPS.pcf 
+trce -intstyle ise -v 3 -s 4 -n 3 -fastpaths -xml OpenMIPS.twx OpenMIPS.ncd -o OpenMIPS.twr OpenMIPS.pcf 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+map -intstyle ise -p xc3s1200e-fg320-4 -cm area -ir off -pr off -c 100 -o OpenMIPS_map.ncd OpenMIPS.ngd OpenMIPS.pcf 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+map -intstyle ise -p xc3s1200e-fg320-4 -cm area -ir off -pr off -c 100 -o OpenMIPS_map.ncd OpenMIPS.ngd OpenMIPS.pcf 
+par -w -intstyle ise -ol high -t 1 OpenMIPS_map.ncd OpenMIPS.ncd OpenMIPS.pcf 
+trce -intstyle ise -v 3 -s 4 -n 3 -fastpaths -xml OpenMIPS.twx OpenMIPS.ncd -o OpenMIPS.twr OpenMIPS.pcf 
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
+xst -intstyle ise -ifn "C:/thumips/OpenMIPS.xst" -ofn "C:/thumips/OpenMIPS.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc3s1200e-fg320-4 OpenMIPS.ngc OpenMIPS.ngd  
