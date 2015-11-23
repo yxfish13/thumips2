@@ -46,7 +46,7 @@ architecture Behavioral of RegisterManager is
 type regbase is array(15 downto 0) of STD_LOGIC_VECTOR (15 downto 0);
 signal regs:regbase;
 begin
-	process (RST)
+	process (RST,w_data,w_addr)
 	begin
 		if (RST='0')then
 			regs(0)<=(others=>'0');
@@ -65,12 +65,9 @@ begin
 			regs(13)<=(others=>'0');
 			regs(14)<=(others=>'0');
 			regs(15)<=(others=>'0');
-		end if;
-	end process;
-	process(w_data,w_addr)
-	begin
-		if (w_enable='1')
+		elsif (w_enable='1') then
 			regs(CONV_INTEGER(w_addr))<=w_data;
+		end if;
 	end process;
 	r_data1<=w_data when (w_addr=reg1_addr and w_enable='1' )else
 		regs(CONV_INTEGER(reg1_addr));

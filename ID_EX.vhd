@@ -55,11 +55,11 @@ begin
 			ex_reg1<=(others=>'0');
 			ex_reg2<=(others=>'0');
 			ex_w_enable<='0';
-			ex_w_reg<='0';
-		elsif(pause(2 downto 1)="10")
+			ex_w_reg<=(others=>'0');
+		elsif(pause(2 downto 1)="10") then
 			ex_op<=OP_NOP;
-		elsif(pause(2 downto 1)="11")
-		elsif(CLK'event and CLK='0')
+		elsif(pause(2 downto 1)="11")then
+		elsif(CLK'event and CLK='0')then 
 			
 		end if;
 	end process;

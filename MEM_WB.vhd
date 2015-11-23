@@ -47,13 +47,13 @@ begin
 	process(CLK,RST)
 	begin
 		if (RST='0') then
-			wb_w_data(15 downto 0) <= (other=>'0');
+			wb_w_data(15 downto 0) <= (others=>'0');
 			wb_w_enable <= '0';
-			wb_reg <= (other=>'0');
+			wb_reg <= (others=>'0');
 		elsif(clk'event and clk='0') then
 			wb_w_data <= mem_w_data;
 			wb_w_enable <= mem_w_enable;
-			wb_reg <= men_reg;
+			wb_reg <= mem_reg;
 		end if;
 	end process;
 end Behavioral;

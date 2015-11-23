@@ -35,6 +35,7 @@ entity OpenMIPS is
     Port ( CLK50 : in  STD_LOGIC;
            CLK11 : in  STD_LOGIC;
            RST : in  STD_LOGIC;
+			  RDN :out std_logic;
            ram1_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
            ram1_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
            ram1_OE,ram1_WE,ram1_EN : out  STD_LOGIC;
@@ -179,10 +180,17 @@ architecture Behavioral of OpenMIPS is
 		w_reg_i : IN std_logic_vector(3 downto 0);
 		mem_op_i : IN std_logic_vector(5 downto 0);
 		mem_addr_i : IN std_logic_vector(15 downto 0);
-		RST : IN std_logic;          
+		RST : IN std_logic;
+		CLK : IN std_logic;    
+		MEM_inst : INOUT std_logic_vector(15 downto 0);      
 		w_data_o : OUT std_logic_vector(15 downto 0);
 		w_enble_o : OUT std_logic;
-		w_reg_o : OUT std_logic_vector(3 downto 0)
+		w_reg_o : OUT std_logic_vector(3 downto 0);
+		oe : OUT std_logic;
+		we : OUT std_logic;
+		en : OUT std_logic;
+		rdn : OUT std_logic;
+		MEM_addr : OUT std_logic_vector(17 downto 0)
 		);
 	END COMPONENT;
 	COMPONENT MEM_WB
@@ -205,8 +213,7 @@ architecture Behavioral of OpenMIPS is
 		w_enable : IN std_logic;
 		w_addr : IN std_logic_vector(3 downto 0);
 		w_data : IN std_logic_vector(15 downto 0);
-		RST : IN std_logic;
-		CLK : IN std_logic;          
+		RST : IN std_logic;          
 		r_data1 : OUT std_logic_vector(15 downto 0);
 		r_data2 : OUT std_logic_vector(15 downto 0)
 		);
@@ -407,9 +414,16 @@ begin
 		mem_op_i => mem_op_o,
 		mem_addr_i => mem_addr_o,
 		RST => RST,
+		CLK => CLK,
 		w_data_o => mem_w_data_i,
 		w_enble_o => mem_w_enable_i,
-		w_reg_o => mem_reg_i
+		w_reg_o => mem_reg_i,
+		oe => ram2_oe,
+		we => ram2_we,
+		en => ram2_en,
+		rdn => RDN,
+		MEM_addr => ram2_data_addr,
+		MEM_inst =>ram2_data_inst 
 	);
 	Inst_MEM_WB: MEM_WB PORT MAP(
 		mem_w_data => mem_w_data_i,
@@ -429,7 +443,6 @@ begin
 		w_addr => wb_reg_o,
 		w_data => wb_w_data_o,
 		RST => RST,
-		CLK => CLK,
 		r_data1 => rdata1,
 		r_data2 => rdata2
 	);

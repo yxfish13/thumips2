@@ -62,13 +62,13 @@ begin
 	begin
 		if (mem_op_i=OP_LW or mem_op_i=OP_LW_SP) then
 			MEM_inst <= "ZZZZZZZZZZZZZZZZ";
+			oe<='0';
+			we<='1';
 		elsif (mem_op_i = OP_SW or mem_op_i = OP_SW_SP) then
-			en<='0';
 			we<=not CLK;
 			oe<='1';
-			MME_inst<=w_data_i;
+			MEM_inst<=w_data_i;
 		else
-			en<='1';
 			we<='1';
 			oe<='1';
 			MEM_inst <= "ZZZZZZZZZZZZZZZZ";
