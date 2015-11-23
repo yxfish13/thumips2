@@ -35,9 +35,12 @@ entity OpenMIPS is
     Port ( CLK50 : in  STD_LOGIC;
            CLK11 : in  STD_LOGIC;
            RST : in  STD_LOGIC;
-           rom_data_inst : in  STD_LOGIC_VECTOR (31 downto 0);
-           rom_data_addr : out  STD_LOGIC_VECTOR (31 downto 0);
-           rom_ce_o : out  STD_LOGIC);
+           ram1_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
+           ram1_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
+           ram1_OE,ram1_WE,ram1_EN : out  STD_LOGIC;
+           ram2_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
+           ram2_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
+           ram2_OE,ram2_WE,ram2_EN : out  STD_LOGIC);
 end OpenMIPS;
 
 architecture Behavioral of OpenMIPS is
@@ -60,9 +63,14 @@ architecture Behavioral of OpenMIPS is
 	END COMPONENT;
 	COMPONENT IF_inst_t
 	PORT(
-		pc_in : IN std_logic_vector(15 downto 0);          
+		pc_in : IN std_logic_vector(15 downto 0);
+		clk : IN std_logic;    
+		IF_addr : OUT std_logic_vector(17 downto 0);
+		IF_inst : INOUT std_logic_vector(15 downto 0);      
 		pc_out1 : OUT std_logic_vector(15 downto 0);
-		IF_inst : OUT std_logic_vector(15 downto 0)
+		oe : OUT std_logic;
+		we : OUT std_logic;
+		en : OUT std_logic
 		);
 	END COMPONENT;
 	COMPONENT PC_MUX
@@ -220,7 +228,7 @@ signal PC_IF_in :std_logic_vector(15 downto 0);
 signal pc_in: std_logic_vector(15 downto 0);
 signal pc_enable: STD_LOGIC;
 signal if_pc: std_logic_vector(15 downto 0);
-signal if_inst:std_logic_vector(15 downto 0);
+--signal if_inst:std_logic_vector(15 downto 0);
 signal id_pc: std_logic_vector(15 downto 0);
 signal id_inst:std_logic_vector(15 downto 0);
 signal rdata1:std_logic_vector(15 downto 0);
@@ -294,10 +302,15 @@ begin
 		pause => pause_manager,
 		pc => PC_IF_in
 	);
-	Inst_IF_inst: IF_inst_t PORT MAP(
+	Inst_IF_inst_t: IF_inst_t PORT MAP(
 		pc_in => PC_IF_in,
+		clk => CLK,
 		pc_out1 => if_pc,
-		IF_inst => if_inst
+		oe => Ram1_OE,
+		we => Ram1_WE,
+		en => Ram1_EN,
+		IF_addr => ram1_data_addr,
+		IF_inst => ram1_data_inst
 	);
 
 	Inst_PC_MUX: PC_MUX PORT MAP(
@@ -312,7 +325,7 @@ begin
 		RST => RST,
 		pause => pause_manager,
 		if_pc => if_pc,
-		if_inst => if_inst,
+		if_inst => ram1_data_inst,
 		id_pc => id_pc,
 		id_inst => id_inst
 	);
@@ -432,7 +445,7 @@ begin
 		clk_slow => CLK
 	);
 
-rom_ce_o<=CLK;
+--rom_ce_o<=CLK;
 
 
 

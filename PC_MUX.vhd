@@ -39,7 +39,15 @@ end PC_MUX;
 architecture Behavioral of PC_MUX is
 
 begin
-	next_PC<=PC_inF;
-
+	--process(PC_inF,PC_ID)
+	--begin
+	--case PC_enable is
+	--when '1' =>
+		--next_PC<=PC_ID;
+	--when others =>
+		--next_PC <= PC_inF;
+	--end case;
+	--end process;
+	next_PC<=PC_ID when(PC_enable='1')else PC_inF;
 end Behavioral;
 

@@ -1,5 +1,5 @@
 --
---	Package File Template
+	--	Package File Template
 --
 --	Purpose: This package defines supplemental types, subtypes, 
 --		 constants, and functions 
@@ -23,7 +23,7 @@ package defines is
 	constant ReadDisable :std_logic := '0';
 	constant InstValid :std_logic := '0';
 	constant InstInvalid :std_logic := '1';
-	constant Zero :std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
+	constant Zero :std_logic_vector(15 downto 0) := "0000000000000000";
 
 --abount inst
 	constant Inst_ADDIU :std_logic_vector(4 downto 0) := "01001";
@@ -70,6 +70,38 @@ package defines is
 	constant EXTEND_ADDSP :std_logic_vector(2 downto 0) := "011";
 	constant EXTEND_BTEQZ :std_logic_vector(2 downto 0) := "000";
 	constant EXTEND_MTSP :std_logic_vector(2 downto 0) := "100";
+	
+--about ALU id
+	constant OP_ADDIU :std_logic_vector(5 downto 0) := "000000";
+	constant OP_ADDIU3 :std_logic_vector(5 downto 0) := "000001";
+	constant OP_ADDSP :std_logic_vector(5 downto 0) := "000010";
+	constant OP_ADDU :std_logic_vector(5 downto 0) := "000011";
+	constant OP_AND :std_logic_vector(5 downto 0) := "000100";
+	constant OP_B :std_logic_vector(5 downto 0) := "000101";
+	constant OP_BEQZ :std_logic_vector(5 downto 0) := "000110";
+	constant OP_BNEZ :std_logic_vector(5 downto 0) := "000111";
+	constant OP_BTEQZ :std_logic_vector(5 downto 0) := "001000";
+	constant OP_CMP :std_logic_vector(5 downto 0) := "001001";
+	constant OP_JR :std_logic_vector(5 downto 0) := "001010";
+	constant OP_LI :std_logic_vector(5 downto 0) := "001011";
+	constant OP_LW :std_logic_vector(5 downto 0) := "001100";
+	constant OP_LW_SP :std_logic_vector(5 downto 0) := "001101";
+	constant OP_MFIH :std_logic_vector(5 downto 0) := "001110";
+	constant OP_MFPC :std_logic_vector(5 downto 0) := "001111";
+	constant OP_MTIH :std_logic_vector(5 downto 0) := "010000";
+	constant OP_MTSP :std_logic_vector(5 downto 0) := "010001";
+	constant OP_NOP :std_logic_vector(5 downto 0) := "010010";
+	constant OP_OR :std_logic_vector(5 downto 0) := "010011";
+	constant OP_SLL :std_logic_vector(5 downto 0) := "010100";
+	constant OP_SRA :std_logic_vector(5 downto 0) := "010101";
+	constant OP_SUBU :std_logic_vector(5 downto 0) := "010110";
+	constant OP_SW :std_logic_vector(5 downto 0) := "010111";
+	constant OP_SW_SP :std_logic_vector(5 downto 0) := "011000";
+	constant OP_NOT :std_logic_vector(5 downto 0) := "011001";
+	constant OP_SLLV :std_logic_vector(5 downto 0) := "011010";
+	constant OP_ADDSP3 :std_logic_vector(5 downto 0) := "011011";
+	constant OP_CMPI :std_logic_vector(5 downto 0) := "011100";
+	constant OP_NEG :std_logic_vector(5 downto 0) := "011101";
 
 -- type <new_type> is
 --  record

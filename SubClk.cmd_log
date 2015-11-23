@@ -1,2 +1,0 @@
-vhdtdtfi -prj thumips -o C:/thumips/SubClk.vhi -module SubClk -template C:/Xilinx/14.7/ISE_DS/ISE//data/vhdlinst.tft -deleteonerror -lib work SubClk.vhd 
-vhdtdtfi -prj thumips -o C:/thumips/SubClk.vhi -module SubClk -template C:/Xilinx/14.7/ISE_DS/ISE//data/vhdlinst.tft -deleteonerror -lib work SubClk.vhd 

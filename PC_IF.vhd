@@ -19,7 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+use defines.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -40,10 +40,11 @@ end PC_IF;
 architecture Behavioral of PC_IF is
 
 begin
-	process (clk)
+	process (clk,rst)
 	begin
 		if (rst='0')then
 			pc<="0000000000000000";
+		elsif (pause(4)='1') and (pause(3)='1') then
 		elsif(clk'event and clk='0') then
 			pc <= PC_in;
 		end if;

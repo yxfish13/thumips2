@@ -39,7 +39,8 @@ end PauseManager;
 architecture Behavioral of PauseManager is
 
 begin
-
-	pause_IF <= "00000";
+	pause_IF<="11100" when pause_from_id='1' else
+				 "11110" when pause_from_ex='1' else
+				 "00000";
 end Behavioral;
 
