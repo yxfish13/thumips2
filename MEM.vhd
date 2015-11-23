@@ -58,7 +58,7 @@ begin
 		  '1';
 	rdn<='1';
 	MEM_addr <= "00"&mem_addr_i;
-	process (mem_op_i,mem_addr_i,w_data_i)
+	process (mem_op_i,mem_addr_i,w_data_i,w_enble_i,w_reg_i)
 	begin
 		if (mem_op_i=OP_LW or mem_op_i=OP_LW_SP) then
 			MEM_inst <= "ZZZZZZZZZZZZZZZZ";

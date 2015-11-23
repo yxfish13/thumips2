@@ -60,7 +60,11 @@ begin
 			ex_op<=OP_NOP;
 		elsif(pause(2 downto 1)="11")then
 		elsif(CLK'event and CLK='0')then 
-			
+			ex_op<=id_op;
+			ex_reg1<=id_reg1;
+			ex_reg2<=id_reg2;
+			ex_w_enable <= id_w_enable;
+			ex_w_reg <= id_w_reg;
 		end if;
 	end process;
 end Behavioral;

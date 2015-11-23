@@ -24,6 +24,12 @@ package defines is
 	constant InstValid :std_logic := '0';
 	constant InstInvalid :std_logic := '1';
 	constant Zero :std_logic_vector(15 downto 0) := "0000000000000000";
+-- special reg
+   constant REG_T:std_logic_vector(3 downto 0) := "1000";
+	constant REG_SP:std_logic_vector(3 downto 0) := "1001";
+	constant REG_IH:std_logic_vector(3 downto 0) := "1010";
+	constant REG_RA:std_logic_vector(3 downto 0) := "1011";
+	
 
 --abount inst
 	constant Inst_ADDIU :std_logic_vector(4 downto 0) := "01001";
