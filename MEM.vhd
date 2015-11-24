@@ -37,42 +37,27 @@ entity MEM is
            w_reg_i : in  STD_LOGIC_VECTOR (3 downto 0);
            mem_op_i : in  STD_LOGIC_VECTOR (5 downto 0);
            mem_addr_i : in  STD_LOGIC_VECTOR (15 downto 0);
-           RST : in  STD_LOGIC;
-			  CLK : in STD_LOGIC;
            w_data_o : out  STD_LOGIC_VECTOR (15 downto 0);
            w_enble_o : out  STD_LOGIC;
            w_reg_o : out  STD_LOGIC_VECTOR (3 downto 0);
-			  oe,we,en,rdn : out STD_LOGIC;
-			  MEM_addr : out STD_LOGIC_VECTOR(17 downto 0);
-           MEM_inst : inout  STD_LOGIC_VECTOR (15 downto 0));
+			  MEM_addr_mc : out STD_LOGIC_VECTOR(15 downto 0);
+			  MEM_data_mc : out STD_LOGIC_VECTOR(15 downto 0);
+			  MEM_data_op : out STD_LOGIC_VECTOR(1 downto 0);
+			  MEM_dataget_mc:in STD_LOGIC_VECTOR(15 downto 0));
+--			  MEM_inst : out  STD_LOGIC_VECTOR (15 downto 0));
 end MEM;
 
 architecture Behavioral of MEM is
 
 begin
+	w_data_o<=MEM_dataget_mc when(mem_op_i=OP_LW or mem_op_i=OP_LW_SP)else
+				w_data_i;
 	w_enble_o<=w_enble_i;
-	w_reg_o <= w_reg_i;
-	w_data_o<=MEM_inst when(mem_op_i=OP_LW or mem_op_i=OP_LW_SP) else w_data_i;
-	
-	en <='0' when (mem_op_i=OP_LW or mem_op_i=OP_LW_SP or mem_op_i = OP_SW or mem_op_i = OP_SW_SP)else
-		  '1';
-	rdn<='1';
-	MEM_addr <= "00"&mem_addr_i;
-	process (mem_op_i,mem_addr_i,w_data_i,w_enble_i,w_reg_i)
-	begin
-		if (mem_op_i=OP_LW or mem_op_i=OP_LW_SP) then
-			MEM_inst <= "ZZZZZZZZZZZZZZZZ";
-			oe<='0';
-			we<='1';
-		elsif (mem_op_i = OP_SW or mem_op_i = OP_SW_SP) then
-			we<=not CLK;
-			oe<='1';
-			MEM_inst<=w_data_i;
-		else
-			we<='1';
-			oe<='1';
-			MEM_inst <= "ZZZZZZZZZZZZZZZZ";
-		end if;
-	end process;
+	w_reg_o<=w_reg_i;
+	MEM_addr_mc<=mem_addr_i;
+	MEM_data_mc<=w_data_i;
+	MEM_data_op<="10" when(mem_op_i=OP_LW or mem_op_i=OP_LW_SP) else
+					 "11" when (mem_op_i=OP_SW or mem_op_i=OP_SW_SP)else
+					 "00";
 end Behavioral;
 

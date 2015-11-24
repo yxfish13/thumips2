@@ -34,17 +34,50 @@ use defines.ALL;
 entity OpenMIPS is
     Port ( CLK50 : in  STD_LOGIC;
            CLK11 : in  STD_LOGIC;
+			  CLK_HAND: in std_logic;
+			  digit1 : out  STD_LOGIC_VECTOR (6 downto 0);
+			  digit2 : out  STD_LOGIC_VECTOR (6 downto 0);
+			  led	: out  STD_LOGIC_VECTOR (15 downto 0);
            RST : in  STD_LOGIC;
 			  RDN :out std_logic;
+			  WRN : out std_logic;
+			  TSRE : in std_logic;
+			  DATA_READY : in std_logic;
            ram1_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
-           ram1_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
-           ram1_OE,ram1_WE,ram1_EN : out  STD_LOGIC;
+           Ram1_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
+           Ram1_OE,Ram1_WE,Ram1_EN : out  STD_LOGIC;
            ram2_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
-           ram2_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
-           ram2_OE,ram2_WE,ram2_EN : out  STD_LOGIC);
+           Ram2_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
+           Ram2_OE,Ram2_WE,Ram2_EN : out  STD_LOGIC);
 end OpenMIPS;
 
 architecture Behavioral of OpenMIPS is
+	COMPONENT MemControler
+	PORT(
+		data_ready : IN std_logic;
+		tsre : IN std_logic;
+		Mem_addr : IN std_logic_vector(15 downto 0);
+		Mem_data_in : IN std_logic_vector(15 downto 0);
+		Mem_op : IN std_logic_vector(1 downto 0);
+		IF_addr : IN std_logic_vector(15 downto 0);
+		IF_data_out : out std_logic_vector(15 downto 0);
+		CLK : IN std_logic;    
+		ram1_data : INOUT std_logic_vector(15 downto 0);
+		ram2_data : INOUT std_logic_vector(15 downto 0);      
+		ram1_oe : OUT std_logic;
+		ram1_we : OUT std_logic;
+		ram1_en : OUT std_logic;
+		ram1_addr : OUT std_logic_vector(17 downto 0);
+		ram2_oe : OUT std_logic;
+		ram2_we : OUT std_logic;
+		ram2_en : OUT std_logic;
+		ram2_addr : OUT std_logic_vector(17 downto 0);
+		rdn : OUT std_logic;
+		wrn : OUT std_logic;
+		Memc_pause : OUT std_logic;
+		Mem_data_out : OUT std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
 	COMPONENT SubClk
 	PORT(
 		clk_fast : IN std_logic;
@@ -65,13 +98,10 @@ architecture Behavioral of OpenMIPS is
 	COMPONENT IF_inst_t
 	PORT(
 		pc_in : IN std_logic_vector(15 downto 0);
-		clk : IN std_logic;    
-		IF_addr : OUT std_logic_vector(17 downto 0);
-		IF_inst : INOUT std_logic_vector(15 downto 0);      
+		IF_ram2_data : IN std_logic_vector(15 downto 0);          
 		pc_out1 : OUT std_logic_vector(15 downto 0);
-		oe : OUT std_logic;
-		we : OUT std_logic;
-		en : OUT std_logic
+		IF_ram2_addr : OUT std_logic_vector(15 downto 0);
+		IF_inst : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 	COMPONENT PC_MUX
@@ -180,17 +210,13 @@ architecture Behavioral of OpenMIPS is
 		w_reg_i : IN std_logic_vector(3 downto 0);
 		mem_op_i : IN std_logic_vector(5 downto 0);
 		mem_addr_i : IN std_logic_vector(15 downto 0);
-		RST : IN std_logic;
-		CLK : IN std_logic;    
-		MEM_inst : INOUT std_logic_vector(15 downto 0);      
+		MEM_dataget_mc : IN std_logic_vector(15 downto 0);          
 		w_data_o : OUT std_logic_vector(15 downto 0);
 		w_enble_o : OUT std_logic;
 		w_reg_o : OUT std_logic_vector(3 downto 0);
-		oe : OUT std_logic;
-		we : OUT std_logic;
-		en : OUT std_logic;
-		rdn : OUT std_logic;
-		MEM_addr : OUT std_logic_vector(17 downto 0)
+		MEM_addr_mc : OUT std_logic_vector(15 downto 0);
+		MEM_data_mc : OUT std_logic_vector(15 downto 0);
+		MEM_data_op : OUT std_logic_vector(1 downto 0)
 		);
 	END COMPONENT;
 	COMPONENT MEM_WB
@@ -222,6 +248,7 @@ architecture Behavioral of OpenMIPS is
 	PORT(
 		pause_from_id : IN std_logic;
 		pause_from_ex : IN std_logic;
+		pause_from_mc : in  STD_LOGIC;
 		RST : IN std_logic;          
 		pause_IF : OUT std_logic_vector(4 downto 0)
 		);
@@ -235,6 +262,7 @@ signal PC_IF_in :std_logic_vector(15 downto 0);
 signal pc_in: std_logic_vector(15 downto 0);
 signal pc_enable: STD_LOGIC;
 signal if_pc: std_logic_vector(15 downto 0);
+signal if_inst_out : std_logic_vector(15 downto 0);
 --signal if_inst:std_logic_vector(15 downto 0);
 signal id_pc: std_logic_vector(15 downto 0);
 signal id_inst:std_logic_vector(15 downto 0);
@@ -281,8 +309,17 @@ signal wb_w_data_o :std_logic_vector(15 downto 0);
 signal wb_w_enable_o :std_logic;
 signal wb_reg_o :std_logic_vector(3 downto 0);
 
-signal a,b,c:std_logic;
-signal d,e,f,g:std_logic_vector(15 downto 0);
+
+signal memc_pause:std_logic;
+signal mc_mem_addr:std_logic_vector(15 downto 0);
+signal mc_mem_data_in:std_logic_vector(15 downto 0);
+signal mc_mem_data_out:std_logic_vector(15 downto 0);
+signal mc_mem_op:std_logic_vector(1 downto 0);
+signal mc_if_addr:std_logic_vector(15 downto 0);
+signal mc_if_data_out:std_logic_vector(15 downto 0);
+signal digitnum1,digitnum2:std_logic_vector(2 downto 0);
+--signal a,b,c:std_logic;
+--signal d,e,f,g:std_logic_vector(15 downto 0);
 --attribute box_type : string;
 --attribute box_type of system : component is "user_black_box";
 begin
@@ -309,17 +346,20 @@ begin
 		pause => pause_manager,
 		pc => PC_IF_in
 	);
+	--Inst_IF_inst_t: IF_inst_t PORT MAP(
+	--	pc_in => PC_IF_in,
+	--	pc_out1 => if_pc,
+	--	IF_ram2_addr =>,
+	--	IF_ram2_data =>,
+	--	IF_inst => ram1_data_inst
+	--);
 	Inst_IF_inst_t: IF_inst_t PORT MAP(
 		pc_in => PC_IF_in,
-		clk => CLK,
 		pc_out1 => if_pc,
-		oe => Ram1_OE,
-		we => Ram1_WE,
-		en => Ram1_EN,
-		IF_addr => ram1_data_addr,
-		IF_inst => ram1_data_inst
+		IF_ram2_addr => mc_if_addr,
+		IF_ram2_data => mc_if_data_out,
+		IF_inst => if_inst_out
 	);
-
 	Inst_PC_MUX: PC_MUX PORT MAP(
 		PC_inF => if_pc,
 		PC_enable => pc_enable,
@@ -332,7 +372,7 @@ begin
 		RST => RST,
 		pause => pause_manager,
 		if_pc => if_pc,
-		if_inst => ram1_data_inst,
+		if_inst => if_inst_out,
 		id_pc => id_pc,
 		id_inst => id_inst
 	);
@@ -407,23 +447,37 @@ begin
 		mem_op_o => mem_op_o,
 		mem_addr_o => mem_addr_o
 	);
+--	Inst_MEM: MEM PORT MAP(
+--		w_data_i => mem_w_data_o,
+--		w_enble_i => mem_w_enable_o,
+--		w_reg_i => mem_w_reg_o,
+--		mem_op_i => mem_op_o,
+--		mem_addr_i => mem_addr_o,
+--		RST => RST,
+--		CLK => CLK,
+--		w_data_o => mem_w_data_i,
+--		w_enble_o => mem_w_enable_i,
+--		w_reg_o => mem_reg_i,
+--		oe => ram2_oe,
+--		we => ram2_we,
+--		en => ram2_en,
+--		rdn => RDN,
+--		MEM_addr => ram2_data_addr,
+--		MEM_inst =>ram2_data_inst 
+--	);
 	Inst_MEM: MEM PORT MAP(
 		w_data_i => mem_w_data_o,
 		w_enble_i => mem_w_enable_o,
 		w_reg_i => mem_w_reg_o,
 		mem_op_i => mem_op_o,
 		mem_addr_i => mem_addr_o,
-		RST => RST,
-		CLK => CLK,
 		w_data_o => mem_w_data_i,
 		w_enble_o => mem_w_enable_i,
 		w_reg_o => mem_reg_i,
-		oe => ram2_oe,
-		we => ram2_we,
-		en => ram2_en,
-		rdn => RDN,
-		MEM_addr => ram2_data_addr,
-		MEM_inst =>ram2_data_inst 
+		MEM_addr_mc => mc_mem_addr,
+		MEM_data_mc => mc_mem_data_in,
+		MEM_data_op => mc_mem_op,
+		MEM_dataget_mc => mc_mem_data_out
 	);
 	Inst_MEM_WB: MEM_WB PORT MAP(
 		mem_w_data => mem_w_data_i,
@@ -449,18 +503,71 @@ begin
 	Inst_PauseManager: PauseManager PORT MAP(
 		pause_from_id => pause_from_id,
 		pause_from_ex => pause_from_ex,
+		pause_from_mc => memc_pause,
 		RST => RST,
 		pause_IF => pause_manager
 		);
-	Inst_SubClk: SubClk PORT MAP(
-		clk_fast => CLK50,
-		rst => RST,
-		clk_slow => CLK
+	Inst_MemControler: MemControler PORT MAP(
+		ram1_oe => Ram1_OE,
+		ram1_we => Ram1_WE,
+		ram1_en => Ram1_EN,
+		ram1_data => ram1_data_inst,
+		ram1_addr => Ram1_data_addr,
+		ram2_oe => Ram2_OE,
+		ram2_we => Ram2_WE, 
+		ram2_en => Ram2_EN,
+		ram2_data => ram2_data_inst,
+		ram2_addr => Ram2_data_addr,
+		rdn => RDN,
+		wrn => WRN,
+		data_ready => DATA_READY,
+		tsre => TSRE,
+		Memc_pause => memc_pause,
+		Mem_addr => mc_mem_addr,
+		Mem_data_in => mc_mem_data_in,
+		Mem_data_out => mc_mem_data_out,
+		Mem_op => mc_mem_op,
+		IF_addr => mc_if_addr,
+		IF_data_out => mc_if_data_out,
+		CLK => CLK
 	);
-
+	--Inst_SubClk: SubClk PORT MAP(
+	--	clk_fast => CLK50,
+--		rst => RST,
+--		clk_slow => CLK
+--	);
+	CLK<=CLK_HAND;
 --rom_ce_o<=CLK;
-
-
-
+	led(15)<=CLK;
+	led(14 downto 8) <= if_inst_out(14 downto 8);
+	led(7 downto 0) <= if_inst_out(7 downto 0);
+	digitnum1 <= PC_IF_in(5 downto 3);
+	digitnum2 <= PC_IF_in(2 downto 0);
+	process (digitnum1,digitnum2)
+	begin
+		 case digitnum2 is
+			when "000"=>digit1<="1111110";
+			when "001"=>digit1<="0110000";
+			when "010"=>digit1<="1101101";
+			when "011"=>digit1<="1111001";
+			when "100"=>digit1<="0110011";
+			when "101"=>digit1<="1011011";
+			when "110"=>digit1<="0011111";
+			when "111"=>digit1<="1110000";
+			when others =>digit1<="1111111";
+			
+		end case;
+		case digitnum1 is
+			when "000"=>digit2<="1111110";
+			when "001"=>digit2<="0110000";
+			when "010"=>digit2<="1101101";
+			when "011"=>digit2<="1111001";
+			when "100"=>digit2<="0110011";
+			when "101"=>digit2<="1011011";
+			when "110"=>digit2<="0011111";
+			when "111"=>digit2<="1110000";
+			when others =>digit1<="1111111";
+		end case;
+	end process;
 end Behavioral;
 
