@@ -551,7 +551,7 @@ begin
 	--	rst => RST,
 	--	clk_slow => CLK
 	--);
-	CLK<=CLK_HAND;
+	--CLK<=CLK_HAND;
 	RDN<=rrdn;WRN<=wwrn;ddata_ready<=DATA_READY;ttsre<=TSRE;
 	--led<=PC_IF_in;
 --	led(15)<=rrdn;led(14)<=wwrn;led(13)<=ddata_ready;led(12)<=ttsre;
