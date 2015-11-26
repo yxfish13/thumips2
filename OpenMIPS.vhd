@@ -42,6 +42,7 @@ entity OpenMIPS is
 			  RDN :out std_logic;
 			  WRN : out std_logic;
 			  TSRE : in std_logic;
+			  TBRE : in std_logic;
 			  DATA_READY : in std_logic;
            ram1_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
            Ram1_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
@@ -56,6 +57,7 @@ architecture Behavioral of OpenMIPS is
 	PORT(
 		data_ready : IN std_logic;
 		tsre : IN std_logic;
+		tbre: in std_logic;
 		Mem_addr : IN std_logic_vector(15 downto 0);
 		Mem_data_in : IN std_logic_vector(15 downto 0);
 		Mem_op : IN std_logic_vector(1 downto 0);
@@ -145,6 +147,7 @@ architecture Behavioral of OpenMIPS is
 		op : OUT std_logic_vector(5 downto 0);
 		reg1_o : OUT std_logic_vector(15 downto 0);
 		reg2_o : OUT std_logic_vector(15 downto 0);
+		id_immediate : out  STD_LOGIC_VECTOR (15 downto 0);
 		reg1_a : OUT std_logic_vector(3 downto 0);
 		reg2_a : OUT std_logic_vector(3 downto 0);
 		w_enbale : OUT std_logic;
@@ -156,6 +159,7 @@ architecture Behavioral of OpenMIPS is
 		id_op : IN std_logic_vector(5 downto 0);
 		id_reg1 : IN std_logic_vector(15 downto 0);
 		id_reg2 : IN std_logic_vector(15 downto 0);
+		id_immediate : IN std_logic_vector(15 downto 0);
 		id_w_enable : IN std_logic;
 		id_w_reg : IN std_logic_vector(3 downto 0);
 		RST : IN std_logic;
@@ -164,6 +168,7 @@ architecture Behavioral of OpenMIPS is
 		ex_op : OUT std_logic_vector(5 downto 0);
 		ex_reg1 : OUT std_logic_vector(15 downto 0);
 		ex_reg2 : OUT std_logic_vector(15 downto 0);
+		ex_immediate : OUT std_logic_vector(15 downto 0);
 		ex_w_enable : OUT std_logic;
 		ex_w_reg : OUT std_logic_vector(3 downto 0)
 		);
@@ -173,6 +178,7 @@ architecture Behavioral of OpenMIPS is
 		op : IN std_logic_vector(5 downto 0);
 		reg1 : IN std_logic_vector(15 downto 0);
 		reg2 : IN std_logic_vector(15 downto 0);
+		ex_immediate : in  STD_LOGIC_VECTOR (15 downto 0);
 		w_enbale_i : IN std_logic;
 		w_reg_i : IN std_logic_vector(3 downto 0);
 		RST : IN std_logic;          
@@ -240,6 +246,7 @@ architecture Behavioral of OpenMIPS is
 		w_addr : IN std_logic_vector(3 downto 0);
 		w_data : IN std_logic_vector(15 downto 0);
 		RST : IN std_logic;          
+		CLK : IN std_logic;
 		r_data1 : OUT std_logic_vector(15 downto 0);
 		r_data2 : OUT std_logic_vector(15 downto 0)
 		);
@@ -311,25 +318,26 @@ signal wb_reg_o :std_logic_vector(3 downto 0);
 
 
 signal memc_pause:std_logic;
-signal mc_mem_addr:std_logic_vector(15 downto 0);
+signal mc_mem_addr,id_immediate,ex_immediate:std_logic_vector(15 downto 0);
 signal mc_mem_data_in:std_logic_vector(15 downto 0);
 signal mc_mem_data_out:std_logic_vector(15 downto 0);
 signal mc_mem_op:std_logic_vector(1 downto 0);
 signal mc_if_addr:std_logic_vector(15 downto 0);
 signal mc_if_data_out:std_logic_vector(15 downto 0);
 signal digitnum1,digitnum2:std_logic_vector(2 downto 0);
+signal rrdn,wwrn,ddata_ready,ttsre:std_logic;
 --signal a,b,c:std_logic;
 --signal d,e,f,g:std_logic_vector(15 downto 0);
 --attribute box_type : string;
 --attribute box_type of system : component is "user_black_box";
 begin
    --CLK <= CLK50;
-   mem_w_data_id <= ex_w_data_i;
-   mem_w_enable_id <= ex_w_enable_i;
-   mem_w_reg_id <= ex_w_reg_i;
-   ex_w_data_id <= mem_w_data_i;
-   ex_w_enable_id <= mem_w_enable_i;
-   ex_w_reg_id <= mem_reg_i;
+   mem_w_data_id <= mem_w_data_i;
+   mem_w_enable_id <= mem_w_enable_i;
+   mem_w_reg_id <= mem_reg_i;
+   ex_w_data_id <= ex_w_data_i;
+   ex_w_enable_id <= ex_w_enable_i;
+   ex_w_reg_id <= ex_w_reg_i;
 	--Inst_PC_REG: PC_REG PORT MAP(
 		--RST => RST,
 		--CLK => CLK,
@@ -396,15 +404,17 @@ begin
 		op => id_op,
 		reg1_o => id_reg1,
 		reg2_o => id_reg2,
+		id_immediate => id_immediate,
 		reg1_a => reg1_a,
 		reg2_a => reg2_a,
 		w_enbale => id_w_enable,
 		w_reg => id_w_reg
-	);
+	);	
 	Inst_ID_EX: ID_EX PORT MAP(
 		id_op => id_op,
 		id_reg1 => id_reg1,
 		id_reg2 => id_reg2,
+		id_immediate => id_immediate,
 		id_w_enable => id_w_enable,
 		id_w_reg => id_w_reg,
 		RST => RST,
@@ -413,6 +423,7 @@ begin
 		ex_op => ex_op,
 		ex_reg1 => ex_reg1,
 		ex_reg2 => ex_reg2,
+		ex_immediate => ex_immediate,
 		ex_w_enable => ex_w_enable,
 		ex_w_reg => ex_w_reg
 	);
@@ -420,6 +431,7 @@ begin
 		op => ex_op,
 		reg1 => ex_reg1,
 		reg2 => ex_reg2,
+		ex_immediate => ex_immediate,
 		w_enbale_i => ex_w_enable,
 		w_reg_i => ex_w_reg,
 		RST => RST,
@@ -497,6 +509,7 @@ begin
 		w_addr => wb_reg_o,
 		w_data => wb_w_data_o,
 		RST => RST,
+		CLK => CLK,
 		r_data1 => rdata1,
 		r_data2 => rdata2
 	);
@@ -518,10 +531,11 @@ begin
 		ram2_en => Ram2_EN,
 		ram2_data => ram2_data_inst,
 		ram2_addr => Ram2_data_addr,
-		rdn => RDN,
-		wrn => WRN,
-		data_ready => DATA_READY,
-		tsre => TSRE,
+		rdn => rrdn,
+		wrn => wwrn,
+		data_ready => ddata_ready,
+		tsre => ttsre,
+		tbre => TBRE,
 		Memc_pause => memc_pause,
 		Mem_addr => mc_mem_addr,
 		Mem_data_in => mc_mem_data_in,
@@ -532,17 +546,18 @@ begin
 		CLK => CLK
 	);
 	--Inst_SubClk: SubClk PORT MAP(
-	--	clk_fast => CLK50,
---		rst => RST,
---		clk_slow => CLK
---	);
+	--	clk_fast => CLK11,
+	--	rst => RST,
+	--	clk_slow => CLK
+	--);
 	CLK<=CLK_HAND;
---rom_ce_o<=CLK;
-	led(15)<=CLK;
-	led(14 downto 8) <= if_inst_out(14 downto 8);
-	led(7 downto 0) <= if_inst_out(7 downto 0);
-	digitnum1 <= PC_IF_in(5 downto 3);
-	digitnum2 <= PC_IF_in(2 downto 0);
+	RDN<=rrdn;WRN<=wwrn;ddata_ready<=DATA_READY;ttsre<=TSRE;
+	--led<=PC_IF_in;
+	led(15)<=rrdn;led(14)<=wwrn;led(13)<=ddata_ready;led(12)<=ttsre;
+	led(11 downto 8)<=pause_manager(4 downto 1);
+	led(7 downto 0)<=mc_mem_data_out(7 downto 0);
+	digitnum1 <= id_op(5 downto 3);
+	digitnum2 <= id_op(2 downto 0);
 	process (digitnum1,digitnum2)
 	begin
 		 case digitnum2 is

@@ -44,9 +44,10 @@ begin
 	begin
 		if (rst='0')then
 			pc<="0000000000000000";
-		elsif (pause(4)='1') and (pause(3)='1') then
-		elsif(clk'event and clk='0') then
-			pc <= PC_in;
+		elsif (clk'event and clk='0') then
+			if (pause(2)/='1') then
+				pc <= PC_in;
+			end if;
 		end if;
 	end process;
 end Behavioral;

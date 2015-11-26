@@ -47,14 +47,11 @@ begin
 		if (RST='0') then
 			id_pc<="0000000000000000";
 			id_inst <= ZERO;
-		elsif (pause(3 downto 2)="11") then
-		
-		elsif (pause(3 downto 2)="10") then
-			id_pc<=ZERO;
-			id_inst<=ZERO;
 		elsif(CLK'event and CLK = '0') then
-			id_pc<=if_pc;
-			id_inst<=if_inst;
+			if (pause(2)/='1') then
+				id_pc<=if_pc;
+				id_inst<=if_inst;
+			end if;
 		end if;
 	end process;
 end Behavioral;
