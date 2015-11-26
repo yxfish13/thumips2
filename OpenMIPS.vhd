@@ -326,6 +326,7 @@ signal mc_if_addr:std_logic_vector(15 downto 0);
 signal mc_if_data_out:std_logic_vector(15 downto 0);
 signal digitnum1,digitnum2:std_logic_vector(2 downto 0);
 signal rrdn,wwrn,ddata_ready,ttsre:std_logic;
+signal CLK25,CLK12,CLK6,CLK3:std_logic;
 --signal a,b,c:std_logic;
 --signal d,e,f,g:std_logic_vector(15 downto 0);
 --attribute box_type : string;
@@ -553,11 +554,39 @@ begin
 	CLK<=CLK_HAND;
 	RDN<=rrdn;WRN<=wwrn;ddata_ready<=DATA_READY;ttsre<=TSRE;
 	--led<=PC_IF_in;
-	led(15)<=rrdn;led(14)<=wwrn;led(13)<=ddata_ready;led(12)<=ttsre;
-	led(11 downto 8)<=pause_manager(4 downto 1);
-	led(7 downto 0)<=mc_mem_data_out(7 downto 0);
-	digitnum1 <= id_op(5 downto 3);
-	digitnum2 <= id_op(2 downto 0);
+--	led(15)<=rrdn;led(14)<=wwrn;led(13)<=ddata_ready;led(12)<=ttsre;
+--	led(11 downto 8)<=pause_manager(4 downto 1);
+--	led(7 downto 0)<=mc_mem_data_out(7 downto 0);
+--	digitnum1 <= id_op(5 downto 3);
+--	digitnum2 <= id_op(2 downto 0);
+	CLK <= CLK25;
+   mem_w_data_id <= mem_w_data_i;
+   mem_w_enable_id <= mem_w_enable_i;
+   mem_w_reg_id <= mem_reg_i;
+   ex_w_data_id <= ex_w_data_i;
+   ex_w_enable_id <= ex_w_enable_i;
+   ex_w_reg_id <= ex_w_reg_i;
+	--CLK<=CLK_HAND;
+	led(15 downto 8) <= id_reg1(7 downto 0);	 
+	led(7 downto 0) <= id_reg2(7 downto 0);
+--	led(15 downto 13) <= ex_w_reg_i(2 downto 0);
+--	led(12)<=ex_w_enable_i;
+--	led(11 downto 0) <= ex_w_data_i(11 downto 0);
+	--led <= ex_w_data_i;
+	--led <= TO_STDLOGICVECTOR(TO_BITVECTOR(debug) sll 8);
+--	led(15)<= pause_from_id;
+--	led(14) <= load_enable;
+--	led(13 downto 8)<=id_op;--load_reg(2 downto 0);
+--	--led(10 downto 8) <= reg1_a(2 downto 0);
+--	led(7 downto 5) <= reg1_a(2 downto 0);
+--	led(4 downto 0) <= pause_manager;
+	process (id_op)
+	begin
+		digitnum1(1 downto 0) <= id_op(4 downto 3);
+		digitnum1(2) <= '0';--pause_from_id;--ex_w_enable_i;
+		digitnum2 <= id_op(2 downto 0);
+		
+	end process;
 	process (digitnum1,digitnum2)
 	begin
 		 case digitnum2 is
@@ -582,7 +611,31 @@ begin
 			when "110"=>digit2<="0011111";
 			when "111"=>digit2<="1110000";
 			when others =>digit1<="1111111";
-		end case;
+		end case;		
+	end process;
+	process (CLK50)
+	begin
+		if (CLK50'event and CLK50='0')
+			then CLK25 <= not CLK25;
+		end if;
+	end process;
+	process (CLK25)
+	begin
+		if (CLK25'event and CLK25='0')
+			then CLK12 <= not CLK12;
+		end if;			
+	end process;
+	process (CLK12)
+	begin
+		if (CLK12'event and CLK12='0')
+			then CLK6 <= not CLK6;	
+		end if;
+	end process;
+	process (CLK6)
+	begin
+		if (CLK6'event and CLK6='0')
+			then CLK3 <= not CLK3;	
+		end if;	
 	end process;
 end Behavioral;
 
