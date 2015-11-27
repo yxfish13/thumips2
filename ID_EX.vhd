@@ -33,6 +33,7 @@ entity ID_EX is
     Port ( id_op : in  STD_LOGIC_VECTOR (5 downto 0);
            id_reg1 : in  STD_LOGIC_VECTOR (15 downto 0);
            id_reg2 : in  STD_LOGIC_VECTOR (15 downto 0);
+			  id_immediate : in  STD_LOGIC_VECTOR (15 downto 0);
            id_w_enable : in  STD_LOGIC;
            id_w_reg : in  STD_LOGIC_VECTOR (3 downto 0);
            RST : in  STD_LOGIC;
@@ -41,6 +42,7 @@ entity ID_EX is
            ex_op : out  STD_LOGIC_VECTOR (5 downto 0);
            ex_reg1 : out  STD_LOGIC_VECTOR (15 downto 0);
            ex_reg2 : out  STD_LOGIC_VECTOR (15 downto 0);
+			  ex_immediate : out  STD_LOGIC_VECTOR (15 downto 0);
            ex_w_enable : out  STD_LOGIC;
            ex_w_reg : out  STD_LOGIC_VECTOR (3 downto 0));
 end ID_EX;
@@ -54,17 +56,20 @@ begin
 			ex_op<=OP_NOP;
 			ex_reg1<=(others=>'0');
 			ex_reg2<=(others=>'0');
+			ex_immediate<=(others=>'0');
 			ex_w_enable<='0';
 			ex_w_reg<=(others=>'0');
-		elsif(pause(2 downto 1)="10") then
-			ex_op<=OP_NOP;
-		elsif(pause(2 downto 1)="11")then
-		elsif(CLK'event and CLK='0')then 
-			ex_op<=id_op;
-			ex_reg1<=id_reg1;
-			ex_reg2<=id_reg2;
-			ex_w_enable <= id_w_enable;
-			ex_w_reg <= id_w_reg;
+		elsif(CLK'event and CLK='0') then
+			if (pause(2)='1') then
+				ex_op<=OP_NOP;
+			elsif(pause(2)='0')then 
+				ex_op<=id_op;
+				ex_reg1<=id_reg1;
+				ex_reg2<=id_reg2;
+				ex_immediate<=id_immediate;
+				ex_w_enable <= id_w_enable;
+				ex_w_reg <= id_w_reg;
+			end if;
 		end if;
 	end process;
 end Behavioral;

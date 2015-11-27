@@ -43,7 +43,7 @@ entity MemControler is
            rdn : out  STD_LOGIC;
            wrn : out  STD_LOGIC;
            data_ready : in  STD_LOGIC;
-           tsre : in  STD_LOGIC;
+           tsre,tbre : in  STD_LOGIC;
            Memc_pause : out  STD_LOGIC;
            Mem_addr : in  STD_LOGIC_VECTOR (15 downto 0);
            Mem_data_in : in  STD_LOGIC_VECTOR (15 downto 0);
@@ -63,59 +63,42 @@ begin
 					'0';
 	ram2_addr<="00"&Mem_addr when(Mem_op(1)='1' and Mem_addr(15)='0') else
 				"00"&IF_addr;
-	ram2_en<='0';
+	ram2_en<=not CLK;
 	ram2_oe<='1' when (Mem_op="11" and Mem_addr(15)='0')else
-				'0';
+				not CLK;
 	ram2_we<=not CLK when(Mem_op="11" and Mem_addr(15)='0') else
+				'1';
+	ram1_addr<="00"&Mem_addr when(Mem_op(1)='1' and Mem_addr(15 downto 1)/="101111110000000" and Mem_addr(15) ='1')else
+				  "00"&IF_addr;
+	ram1_en<=not CLK when (Mem_op(1)='1' and Mem_addr(15 downto 1)/="101111110000000" and Mem_addr(15)='1') else
+				'1';
+	rdn <=not CLK when(Mem_op="10" and Mem_addr=x"BF00") else
+			'1';
+	wrn <= not CLK when (Mem_op="11" and Mem_addr=x"BF00")else
+			'1';
+	ram1_oe <= not CLK when(Mem_op="10")else
+				'1';
+	ram1_we <= not CLK when(Mem_op="11")else
 				'1';
 	process(Mem_addr,Mem_data_in,Mem_op,IF_addr,CLK)
 	begin
-		if (Mem_op="11" and Mem_addr(15)='0') then
-			ram2_data<=Mem_data_in;
-		else--if (CLK'event and CLK='0') then
-				ram2_data<=(others=>'Z');
-		end if;
-		if (mem_op="11" and mem_addr(15)='1') then
-			ram1_data<=Mem_data_in;
-		else--if (CLK'event and CLK='0') then
-				ram1_data<=(others=>'Z');
-		end if;
-		if (Mem_op(1)='1' and Mem_addr(15)='1') then
-			if (Mem_addr(15 downto 0)="1011111100000000") then
-				ram1_en<='1';
-				if (Mem_op(0)='1') then
-					rdn<='1';
-					wrn<=CLK;
-				else
-					rdn<= not CLK;
-					wrn<='1';
-				end if;
+		if (CLK'event and CLK='1') then
+			if (Mem_op="11" and Mem_addr(15)='0') then
+					ram2_data<=Mem_data_in;
 			else
-				rdn<='1';
-				wrn<='1';
-				ram1_en<='0';
-				ram1_addr<="00"&Mem_addr;
-				if (Mem_op(0)='1') then
-					ram1_oe<='1';
-					ram1_we<=not CLK;
-				--	ram1_data<=Mem_data_in;
-				else--if (CLK='0') then
-					ram1_oe<='0';
-					ram1_we<='1';
-				--	ram1_data<=(others=>'Z');
-				end if;
+					ram2_data<=(others=>'Z');
 			end if;
-		else
-			ram1_en<='1';
-			rdn<='1';
-			wrn<='1';
-			ram1_we<='1';
-			ram1_oe<='1';
+			if (mem_op="11" and mem_addr(15)='1') then
+					ram1_data<=Mem_data_in;
+			else
+					ram1_data<=(others=>'Z');
+			end if;
 		end if;
 	end process;
 	IF_data_out<=ram2_data;
 	Mem_data_out<=ram2_data when(Mem_op="10" and Mem_addr(15)='0') else
-					  "00000000000000"&data_ready&tsre when(Mem_addr="1011111100000001")else
+					  "00000000000000"&data_ready&(tsre and tbre) when(Mem_addr="1011111100000001")else
+					  "00000000"&ram1_data(7 downto 0) when (Mem_addr="1011111100000000") else 
 					  ram1_data;
 end Behavioral;
 

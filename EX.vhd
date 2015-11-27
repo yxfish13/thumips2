@@ -36,8 +36,10 @@ entity EX is
     Port ( op : in  STD_LOGIC_VECTOR (5 downto 0);
            reg1 : in  STD_LOGIC_VECTOR (15 downto 0);
            reg2 : in  STD_LOGIC_VECTOR (15 downto 0);
+			  ex_immediate : in  STD_LOGIC_VECTOR (15 downto 0);
            w_enbale_i : in  STD_LOGIC;
            w_reg_i : in  STD_LOGIC_VECTOR (3 downto 0);
+			  
            RST : in  STD_LOGIC;
            pause_send : out  STD_LOGIC; -- pause only
            w_data : out  STD_LOGIC_VECTOR (15 downto 0);--every
@@ -105,12 +107,13 @@ begin
 					w_enable_o<= '1';
 					w_data <= TO_STDLOGICVECTOR(TO_BITVECTOR(reg2) sll CONV_INTEGER(reg1));					
 				when OP_LW | OP_LW_SP=>
-					w_enable_o<= '0';
+					w_enable_o<= '1';
 					mem_addr <= reg1 + reg2;
 					load_enable <= '1';					
 				when OP_SW | OP_SW_SP=>
 					w_enable_o<= '0';
-					mem_addr <= reg1 + reg2;
+					mem_addr <= reg1 + ex_immediate;
+					w_data <= reg2;
 				when OP_MFIH | OP_MFPC | OP_MTIH | OP_MTSP | OP_LI=>
 					w_enable_o<= '1';
 					w_data <= reg1;			

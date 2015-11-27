@@ -55,6 +55,7 @@ entity ID is
            op : out  STD_LOGIC_VECTOR (5 downto 0);-- every
            reg1_o : out  STD_LOGIC_VECTOR (15 downto 0);--use Only
            reg2_o : out  STD_LOGIC_VECTOR (15 downto 0);--use Only
+			  id_immediate : out  STD_LOGIC_VECTOR (15 downto 0);
            reg1_a : out  STD_LOGIC_VECTOR (3 downto 0);-- constant
            reg2_a : out  STD_LOGIC_VECTOR (3 downto 0);-- constant
            w_enbale : out  STD_LOGIC; -- unused
@@ -321,9 +322,23 @@ begin
 				
 	  
 				when Inst_SW =>
+					op <= OP_SW;
+					reg1_enable <= '1';
+					reg2_enable <= '1';
+					reg1 <= '0' & inst(10 downto 8);
+					reg2 <=  '0' & inst(7 downto 5); -- data to save
+				   reg1_o <= regFilter_data1;
+					reg2_o <= regFilter_data2; 
+					id_immediate <= SXT(inst(4 downto 0),16);
 				when Inst_SW_SP =>
-				
-				
+					op <= OP_SW_SP;
+					reg1_enable <= '1';
+					reg2_enable <= '1';
+					reg1 <= REG_SP;
+					reg2 <=  '0' & inst(10 downto 8); -- data to save
+				   reg1_o <= regFilter_data1;
+					reg2_o <= regFilter_data2; 
+					id_immediate <= Sign_extend;
 				when others =>
 			end case;
 		end if;

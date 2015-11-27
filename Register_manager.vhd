@@ -38,6 +38,7 @@ entity RegisterManager is
            w_addr : in  STD_LOGIC_VECTOR (3 downto 0);
            w_data : in  STD_LOGIC_VECTOR (15 downto 0);
            RST : in  STD_LOGIC;
+			  CLK : in STD_LOGIC;
            r_data1 : out  STD_LOGIC_VECTOR (15 downto 0);
            r_data2 : out  STD_LOGIC_VECTOR (15 downto 0));
 end RegisterManager;
@@ -46,7 +47,7 @@ architecture Behavioral of RegisterManager is
 type regbase is array(15 downto 0) of STD_LOGIC_VECTOR (15 downto 0);
 signal regs:regbase;
 begin
-	process (RST,w_data,w_addr)
+	process (RST,w_data,w_addr,CLK)
 	begin
 		if (RST='0')then
 			regs(0)<=(others=>'0');
@@ -65,8 +66,10 @@ begin
 			regs(13)<=(others=>'0');
 			regs(14)<=(others=>'0');
 			regs(15)<=(others=>'0');
-		elsif (w_enable='1') then
-			regs(CONV_INTEGER(w_addr))<=w_data;
+		elsif(CLK'event and CLK='1') then
+			if (w_enable='1') then
+				regs(CONV_INTEGER(w_addr))<=w_data;
+			end if;
 		end if;
 	end process;
 	r_data1<=w_data when (w_addr=reg1_addr and w_enable='1' )else
