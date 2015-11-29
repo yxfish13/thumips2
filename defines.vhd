@@ -108,6 +108,52 @@ package defines is
 	constant OP_ADDSP3 :std_logic_vector(5 downto 0) := "011011";
 	constant OP_CMPI :std_logic_vector(5 downto 0) := "011100";
 	constant OP_NEG :std_logic_vector(5 downto 0) := "011101";
+	
+	constant HEX_1:std_logic_vector(3 downto 0):="0001";
+	constant HEX_2:std_logic_vector(3 downto 0):="0010";
+	constant HEX_3:std_logic_vector(3 downto 0):="0011";
+	constant HEX_4:std_logic_vector(3 downto 0):="0100";
+	constant HEX_5:std_logic_vector(3 downto 0):="0101";
+	constant HEX_6:std_logic_vector(3 downto 0):="0110";
+	constant HEX_7:std_logic_vector(3 downto 0):="0111";
+	constant HEX_8:std_logic_vector(3 downto 0):="1000";
+	constant HEX_9:std_logic_vector(3 downto 0):="1001";
+	constant HEX_A:std_logic_vector(3 downto 0):="1010";
+	constant HEX_B:std_logic_vector(3 downto 0):="1011";
+	constant HEX_C:std_logic_vector(3 downto 0):="1100";
+	constant HEX_D:std_logic_vector(3 downto 0):="1101";
+	constant HEX_E:std_logic_vector(3 downto 0):="1110";
+	constant HEX_F:std_logic_vector(3 downto 0):="1111";
+	
+	constant CODE_A:std_logic_vector(7 downto 0)    := HEX_1 & HEX_C;
+	constant CODE_B:std_logic_vector(7 downto 0)    := HEX_3 & HEX_2;
+	constant CODE_C:std_logic_vector(7 downto 0)    := HEX_2 & HEX_1;
+	constant CODE_D:std_logic_vector(7 downto 0)    := HEX_2 & HEX_3;
+	constant CODE_E:std_logic_vector(7 downto 0)    := HEX_2 & HEX_4;
+	constant CODE_F:std_logic_vector(7 downto 0)    := HEX_2 & HEX_B;
+	constant CODE_G:std_logic_vector(7 downto 0)    := HEX_3 & HEX_4;
+	constant CODE_H:std_logic_vector(7 downto 0)    := HEX_3 & HEX_3;
+	constant CODE_I:std_logic_vector(7 downto 0)    := HEX_4 & HEX_3;
+	constant CODE_J:std_logic_vector(7 downto 0)    := HEX_3 & HEX_B;
+	constant CODE_K:std_logic_vector(7 downto 0)    := HEX_4 & HEX_2;
+	constant CODE_L:std_logic_vector(7 downto 0)    := HEX_4 & HEX_B;
+	constant CODE_M:std_logic_vector(7 downto 0)    := HEX_3 & HEX_A;
+	constant CODE_N:std_logic_vector(7 downto 0)    := HEX_3 & HEX_1;
+	constant CODE_O:std_logic_vector(7 downto 0)    := HEX_4 & HEX_4;
+	constant CODE_P:std_logic_vector(7 downto 0)    := HEX_4 & HEX_D;
+	constant CODE_Q:std_logic_vector(7 downto 0)    := HEX_1 & HEX_5;
+	constant CODE_R:std_logic_vector(7 downto 0)    := HEX_2 & HEX_D;
+	constant CODE_S:std_logic_vector(7 downto 0)    := HEX_1 & HEX_B;
+	constant CODE_T:std_logic_vector(7 downto 0)    := HEX_2 & HEX_C;
+	constant CODE_U:std_logic_vector(7 downto 0)    := HEX_3 & HEX_C;
+	constant CODE_V:std_logic_vector(7 downto 0)    := HEX_2 & HEX_A;
+	constant CODE_W:std_logic_vector(7 downto 0)    := HEX_1 & HEX_D;
+	constant CODE_X:std_logic_vector(7 downto 0)    := HEX_2 & HEX_2;
+	constant CODE_Y:std_logic_vector(7 downto 0)    := HEX_3 & HEX_5;
+	constant CODE_Z:std_logic_vector(7 downto 0)    := HEX_1 & HEX_A;
+	constant CODE_BKSP:std_logic_vector(7 downto 0) := HEX_6 & HEX_6;
+	constant CODE_ENTER:std_logic_vector(7 downto 0):= HEX_5 & HEX_A;
+	
 
 -- type <new_type> is
 --  record

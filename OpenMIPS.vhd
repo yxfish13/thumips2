@@ -42,8 +42,21 @@ entity OpenMIPS is
 			  RDN :out std_logic;
 			  WRN : out std_logic;
 			  TSRE : in std_logic;
-			  TBRE : in std_logic;
+			  TBRE : in std_logic;			  
 			  DATA_READY : in std_logic;
+			  keyboardData,keyboardclk: in std_logic;
+			  r,g,b : out STD_LOGIC_vector(2 downto 0);
+			  hs,vs : out STD_LOGIC; --行同步、场同步信号
+			  --	flash			  
+           FlashByte : out  STD_LOGIC;
+           FlashVpen : out  STD_LOGIC;
+           FlashCE : out  STD_LOGIC;
+           FlashOE : out  STD_LOGIC;
+           FlashWE : out  STD_LOGIC;
+           FlashRP : out  STD_LOGIC;
+           FlashAddr : out  STD_LOGIC_VECTOR (22 downto 0);
+           FlashData : inout  STD_LOGIC_VECTOR (15 downto 0);
+--			  
            ram1_data_inst : inout  STD_LOGIC_VECTOR (15 downto 0);
            Ram1_data_addr : out  STD_LOGIC_VECTOR (17 downto 0);
            Ram1_OE,Ram1_WE,Ram1_EN : out  STD_LOGIC;
@@ -77,6 +90,18 @@ architecture Behavioral of OpenMIPS is
 		rdn : OUT std_logic;
 		wrn : OUT std_logic;
 		Memc_pause : OUT std_logic;
+		--	flash			  
+           FlashByte : out  STD_LOGIC;
+           FlashVpen : out  STD_LOGIC;
+           FlashCE : out  STD_LOGIC;
+           FlashOE : out  STD_LOGIC;
+           FlashWE : out  STD_LOGIC;
+           FlashRP : out  STD_LOGIC;
+           FlashAddr : out  STD_LOGIC_VECTOR (22 downto 0);
+           FlashData : inout  STD_LOGIC_VECTOR (15 downto 0);
+--			  
+			  RST_in : in std_logic;
+			  RST_out : out std_logic;
 		Mem_data_out : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
@@ -260,6 +285,41 @@ architecture Behavioral of OpenMIPS is
 		pause_IF : OUT std_logic_vector(4 downto 0)
 		);
 	END COMPONENT;
+	COMPONENT vga640480
+	PORT(
+		reset : IN std_logic;
+		clk : IN std_logic;
+		nowpixel : IN std_logic_vector(8 downto 0);          
+		hs : OUT std_logic;
+		vs : OUT std_logic;
+		x_out : OUT integer;
+		y_out : OUT integer;
+		r : OUT std_logic_vector(2 downto 0);
+		g : OUT std_logic_vector(2 downto 0);
+		b : OUT std_logic_vector(2 downto 0)
+		);
+	END COMPONENT;
+	COMPONENT Keyboard
+	PORT(
+		datain : IN std_logic;
+		clkin : IN std_logic;
+		fclk : IN std_logic;
+		rst : IN std_logic;          
+		fok1 : OUT std_logic;
+		scancode : OUT std_logic_vector(7 downto 0)
+		);
+	END COMPONENT;
+	COMPONENT textControler
+	PORT(
+		reset : IN std_logic;
+		clk : IN std_logic;
+		x : IN integer;
+		y : IN integer;
+		keycode : IN std_logic_vector(7 downto 0);
+		fok : IN std_logic;          
+		nowpixel : OUT std_logic_vector(8 downto 0)
+		);
+	END COMPONENT;
 
 signal CLK: STD_LOGIC;
 
@@ -328,12 +388,16 @@ signal digitnum1,digitnum2:std_logic_vector(2 downto 0);
 signal rrdn,wwrn,ddata_ready,ttsre:std_logic;
 signal yx_1:std_logic;
 signal yx_2:std_logic_vector(17 downto 0);
+signal vga_x,vga_y:integer;
 signal CLK5,CLK25,CLK2,CLK_D:std_logic;
+signal scanCode:std_logic_vector(7 downto 0);
+signal fok,RST1:std_logic;
+signal nowPixel:std_logic_vector(8 downto 0);
 --signal a,b,c:std_logic;
 --signal d,e,f,g:std_logic_vector(15 downto 0);
 --attribute box_type : string;
 --attribute box_type of system : component is "user_black_box";
-begin
+begin	
    --CLK <= CLK50;
    mem_w_data_id <= mem_w_data_i;
    mem_w_enable_id <= mem_w_enable_i;
@@ -352,7 +416,7 @@ begin
 	--);
 	Inst_PC_IF: PC_IF PORT MAP(
 		PC_in => pc_next,
-		rst => RST,
+		rst => RST1,
 		clk => CLK,
 		pause => pause_manager,
 		pc => PC_IF_in
@@ -380,7 +444,7 @@ begin
 	
 	Inst_IF_ID: IF_ID PORT MAP(
 		CLK => CLK,
-		RST => RST,
+		RST => RST1,
 		pause => pause_manager,
 		if_pc => if_pc,
 		if_inst => if_inst_out,
@@ -388,7 +452,7 @@ begin
 		id_inst => id_inst
 	);
 	Inst_ID: ID PORT MAP(
-		RST => RST,
+		RST => RST1,
 		pc_input => id_pc,
 		inst => id_inst,
 		reg1_data => rdata1,
@@ -420,7 +484,7 @@ begin
 		id_immediate => id_immediate,
 		id_w_enable => id_w_enable,
 		id_w_reg => id_w_reg,
-		RST => RST,
+		RST => RST1,
 		CLK => CLK,
 		pause => pause_manager,
 		ex_op => ex_op,
@@ -437,7 +501,7 @@ begin
 		ex_immediate => ex_immediate,
 		w_enbale_i => ex_w_enable,
 		w_reg_i => ex_w_reg,
-		RST => RST,
+		RST => RST1,
 		pause_send => pause_from_ex,
 		w_data => ex_w_data_i,
 		w_enable_o => ex_w_enable_i,
@@ -453,7 +517,7 @@ begin
 		ex_w_reg_i => ex_w_reg_i,
 		ex_mem_op => ex_mem_op,
 		ex_mem_addr => ex_mem_addr,
-		RST => RST,
+		RST => RST1,
 		CLK => CLK,
 		pause => pause_manager,
 		mem_w_data_o => mem_w_data_o,
@@ -498,7 +562,7 @@ begin
 		mem_w_data => mem_w_data_i,
 		mem_w_enable => mem_w_enable_i,
 		mem_reg => mem_reg_i,
-		RST => RST,
+		RST => RST1,
 		CLK => CLK,
 		pause => pause_manager,
 		wb_w_data => wb_w_data_o,
@@ -511,7 +575,7 @@ begin
 		w_enable => wb_w_enable_o,
 		w_addr => wb_reg_o,
 		w_data => wb_w_data_o,
-		RST => RST,
+		RST => RST1,
 		CLK => CLK,
 		r_data1 => rdata1,
 		r_data2 => rdata2
@@ -520,7 +584,7 @@ begin
 		pause_from_id => pause_from_id,
 		pause_from_ex => pause_from_ex,
 		pause_from_mc => memc_pause,
-		RST => RST,
+		RST =>RST1,
 		pause_IF => pause_manager
 		);
 	Inst_MemControler: MemControler PORT MAP(
@@ -546,31 +610,72 @@ begin
 		Mem_op => mc_mem_op,
 		IF_addr => mc_if_addr,
 		IF_data_out => mc_if_data_out,
+		--	flash			  
+           FlashByte=>FlashByte,
+           FlashVpen =>FlashVpen,
+           FlashCE =>FlashCE,
+           FlashOE => FlashOE,
+           FlashWE => FlashWE,
+           FlashRP => FlashRP ,
+           FlashAddr => FlashAddr,
+           FlashData => FlashData,
+--			  
+			  RST_in => RST,
+			  RST_out => RST1,
 		CLK => CLK
 	);
 	Inst_SubClk: SubClk PORT MAP(
-		clk_fast => CLK11,
-		rst => RST,
-		clk_slow => CLK5
-	);
-	Inst_SubClk1: SubClk PORT MAP(
-		clk_fast => CLK5,
+		clk_fast => CLK50,
 		rst => RST,
 		clk_slow => CLK25
+	);
+	Inst_SubClk1: SubClk PORT MAP(
+		clk_fast => CLK25,
+		rst => RST,
+		clk_slow => CLK5
 	);
 	Inst_SubClk2: SubClk PORT MAP(
 		clk_fast => CLK25,
 		rst => RST,
 		clk_slow => CLK2
 	);
-	CLK<=CLK11;
+	Inst_vga640480: vga640480 PORT MAP(
+		reset => RST,
+		clk => CLK25,
+		nowPixel => nowPixel,
+		hs => hs,
+		vs => vs,
+		x_out => vga_x,
+		y_out => vga_y,
+		r => r,
+		g => g,
+		b => b
+	);
+	Inst_Keyboard: Keyboard PORT MAP(
+		datain => keyboardData,
+		clkin => keyboardclk,
+		fclk => CLK25,
+		rst => RST,
+		fok1 => fok,
+		scancode => scanCode
+	);
+	Inst_textControler: textControler PORT MAP(
+		reset => RST,
+		clk => CLK25,
+		x => vga_x,
+		y => vga_y,
+		keycode => scanCode,
+		fok => fok,
+		nowpixel => nowPixel
+	);
+	CLK<=CLK25;
 	--CLK_D<=CLK;
 	RDN<=rrdn;WRN<=wwrn;ddata_ready<=DATA_READY;ttsre<=TSRE;
 	--led<=PC_IF_in;
 	Ram2_WE<=yx_1;Ram2_data_addr<=yx_2;
 	led(15)<=yx_1;led(14)<=wwrn;led(13)<=ddata_ready;led(12)<=ttsre;
 	led(11 downto 8)<=yx_2(3 downto 0);
-	led(7 downto 0)<=mc_mem_data_out(7 downto 0);
+	led(7 downto 0)<=scanCode;--mc_mem_data_out(7 downto 0);
 	digitnum1 <= id_op(5 downto 3);
 	digitnum2 <= id_op(2 downto 0);
 	process (digitnum1,digitnum2)
